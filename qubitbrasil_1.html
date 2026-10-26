@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Guilherme Morais do Nascimento">
+<title>QubitBrasil: computação quântica em português</title>
+<meta name="description" content="Aprenda o que é um qubit, superposição, emaranhamento e computação quântica, em linguagem clara.">
+<style>
+  :root {
+    --bg: #0b1020;
+    --surface: #131a2e;
+    --text: #e6ecff;
+    --muted: #9aa6c7;
+    --blue: #3da5ff;
+    --green: #39ff9a;
+    --border: #22304f;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(11,16,32,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav {
+    max-width: 1100px; margin: 0 auto; padding: 14px 20px;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .logo { font-weight: 700; font-size: 1.2rem; color: var(--green); text-decoration: none; }
+  nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 16px; margin: 0; padding: 0; }
+  nav a { color: var(--muted); text-decoration: none; font-size: 0.95rem; }
+  nav a:hover { color: var(--text); }
+
+  .hero {
+    text-align: center; padding: 90px 20px 70px;
+    background: radial-gradient(ellipse at top, #15305a 0%, var(--bg) 70%);
+  }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); margin: 0 0 16px; line-height: 1.15; }
+  .hero h1 span { color: var(--green); }
+  .hero p { max-width: 640px; margin: 0 auto 28px; color: var(--muted); font-size: 1.1rem; }
+  .btn {
+    display: inline-block; padding: 12px 24px; border-radius: 8px;
+    background: var(--blue); color: #04111f; font-weight: 600; text-decoration: none;
+  }
+  .btn:hover { background: var(--green); }
+
+  section { max-width: 1100px; margin: 0 auto; padding: 64px 20px; }
+  section h2 { font-size: 1.8rem; margin: 0 0 12px; }
+  section h2::after {
+    content: ""; display: block; width: 56px; height: 3px;
+    background: var(--green); margin-top: 8px; border-radius: 2px;
+  }
+  .lead { color: var(--muted); max-width: 720px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-top: 28px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 22px;
+  }
+  .card h3 { margin: 0 0 8px; color: var(--blue); font-size: 1.1rem; }
+  .card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 28px; }
+  @media (max-width: 640px) { .compare { grid-template-columns: 1fr; } }
+  .bit-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 22px; text-align: center;
+  }
+  .bit-box .value { font-size: 2.4rem; font-weight: 700; margin: 12px 0; font-family: monospace; }
+  .bit-box p { color: var(--muted); margin: 0; }
+
+  /* Simulador */
+  .simulador {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 28px; margin-top: 28px;
+  }
+  .estado {
+    font-family: monospace; font-size: 1.1rem; text-align: center;
+    background: #0a0f1d; border-radius: 8px; padding: 18px; margin-bottom: 18px;
+    word-break: break-word;
+  }
+  .controles { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  button.porta {
+    background: transparent; color: var(--text); border: 1px solid var(--blue);
+    padding: 10px 18px; border-radius: 8px; cursor: pointer; font-size: 0.95rem;
+  }
+  button.porta:hover { background: var(--blue); color: #04111f; }
+  button.reset { border-color: var(--green); color: var(--green); }
+  button.reset:hover { background: var(--green); color: #04111f; }
+  .probs { margin-top: 18px; color: var(--muted); text-align: center; font-size: 0.95rem; }
+  .medir-res { text-align: center; margin-top: 12px; color: var(--green); min-height: 1.5em; }
+
+  /* Glossário */
+  dl { margin: 24px 0 0; }
+  dt { color: var(--green); font-weight: 600; margin-top: 16px; }
+  dd { margin: 4px 0 0 0; color: var(--muted); }
+
+  /* Referências */
+  .ref-grupo { margin-top: 28px; }
+  .ref-grupo h3 { color: var(--blue); margin-bottom: 8px; }
+  .ref-grupo ul { padding-left: 20px; color: var(--muted); margin: 0; }
+  .ref-grupo li { margin-bottom: 8px; }
+  .aviso { font-size: 0.9rem; color: var(--muted); border-left: 3px solid var(--green); padding-left: 14px; margin-top: 20px; }
+
+  footer {
+    text-align: center; padding: 30px 20px; color: var(--muted);
+    border-top: 1px solid var(--border); font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="#inicio" class="logo">QubitBrasil</a>
+    <ul>
+      <li><a href="#o-que-e">O que é um qubit</a></li>
+      <li><a href="#simulador">Simulador</a></li>
+      <li><a href="#glossario">Glossário</a></li>
+      <li><a href="#referencias">Referências</a></li>
+      <li><a href="#brasil">Brasil</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+
+<div class="hero" id="inicio">
+  <h1>Computação quântica <span>sem complicação</span></h1>
+  <p>Entenda o que é um qubit, como ele difere do bit clássico e por que essa tecnologia pode mudar a forma como resolvemos problemas.</p>
+  <a href="#o-que-e" class="btn">Começar</a>
+</div>
+
+<section id="o-que-e">
+  <h2>O que é um qubit</h2>
+  <p class="lead">Um computador comum trabalha com bits, que valem 0 ou 1. Um qubit (bit quântico) pode estar em uma combinação dos dois estados ao mesmo tempo, chamada superposição. Só ao ser medido ele assume um valor definido.</p>
+
+  <div class="compare">
+    <div class="bit-box">
+      <strong>Bit clássico</strong>
+      <div class="value">0 ou 1</div>
+      <p>Um valor de cada vez.</p>
+    </div>
+    <div class="bit-box">
+      <strong>Qubit</strong>
+      <div class="value">α|0⟩ + β|1⟩</div>
+      <p>Uma combinação dos dois estados, até ser medido.</p>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Superposição</h3>
+      <p>O qubit pode representar 0 e 1 em proporções diferentes. Pense em uma moeda girando no ar antes de cair.</p>
+    </div>
+    <div class="card">
+      <h3>Emaranhamento</h3>
+      <p>Dois qubits podem ficar correlacionados, de modo que medir um revela informação sobre o outro, mesmo à distância.</p>
+    </div>
+    <div class="card">
+      <h3>Medição</h3>
+      <p>Ao medir, o qubit "escolhe" 0 ou 1 com probabilidades que dependem do seu estado. A medição altera o sistema.</p>
+    </div>
+  </div>
+</section>
+
+<section id="simulador">
+  <h2>Mini-simulador de um qubit</h2>
+  <p class="lead">Comece no estado |0⟩ e aplique portas quânticas. Veja como as probabilidades mudam e meça o qubit.</p>
+
+  <div class="simulador">
+    <div class="estado" id="estado">|0⟩</div>
+    <div class="controles">
+      <button class="porta" onclick="aplicarH()">Porta Hadamard (H)</button>
+      <button class="porta" onclick="aplicarX()">Porta X (NOT)</button>
+      <button class="porta" onclick="aplicarZ()">Porta Z</button>
+      <button class="porta" onclick="medir()">Medir</button>
+      <button class="porta reset" onclick="resetar()">Resetar</button>
+    </div>
+    <div class="probs" id="probs"></div>
+    <div class="medir-res" id="medir-res"></div>
+  </div>
+</section>
+
+<section id="glossario">
+  <h2>Glossário</h2>
+  <dl>
+    <dt>Bit</dt>
+    <dd>Menor unidade de informação clássica, com valor 0 ou 1.</dd>
+    <dt>Decoerência</dt>
+    <dd>Perda das propriedades quânticas de um sistema por interação com o ambiente. É um dos maiores desafios da área.</dd>
+    <dt>Emaranhamento</dt>
+    <dd>Correlação quântica entre sistemas, de modo que o estado de um depende do outro.</dd>
+    <dt>Porta quântica</dt>
+    <dd>Operação que transforma o estado de um ou mais qubits, análoga às portas lógicas clássicas.</dd>
+    <dt>Porta de Hadamard</dt>
+    <dd>Porta que cria superposição: leva |0⟩ a uma combinação igual de |0⟩ e |1⟩.</dd>
+    <dt>Superposição</dt>
+    <dd>Estado em que um qubit combina os valores 0 e 1 ao mesmo tempo.</dd>
+    <dt>NISQ</dt>
+    <dd>Era atual de dispositivos quânticos ruidosos, com número limitado de qubits (Noisy Intermediate-Scale Quantum).</dd>
+  </dl>
+</section>
+
+<section id="referencias">
+  <h2>Biblioteca de referências</h2>
+  <p class="lead">Materiais para aprofundar o estudo, organizados por tipo.</p>
+
+  <div class="ref-grupo">
+    <h3>Livros</h3>
+    <ul>
+      <li>Rieffel, E. & Polak, W. <em>Quantum Computing: A Gentle Introduction</em> (MIT Press, 2011). Para iniciantes.</li>
+      <li>Aaronson, S. <em>Quantum Computing since Democritus</em> (Cambridge University Press, 2013).</li>
+      <li>Kaye, P., Laflamme, R. & Mosca, M. <em>An Introduction to Quantum Computing</em> (Oxford, 2007).</li>
+      <li>Nielsen, M. & Chuang, I. <em>Quantum Computation and Quantum Information</em> (Cambridge, 2000). Referência técnica.</li>
+    </ul>
+  </div>
+
+  <div class="ref-grupo">
+    <h3>Artigos seminais</h3>
+    <ul>
+      <li>Feynman, R. (1982). "Simulating Physics with Computers". <em>International Journal of Theoretical Physics</em>.</li>
+      <li>Shor, P. (1994/1997). Algoritmo de fatoração em tempo polinomial. <em>SIAM Journal on Computing</em>.</li>
+      <li>Grover, L. (1996). "A fast quantum mechanical algorithm for database search". <em>STOC</em>.</li>
+      <li>Preskill, J. (2018). "Quantum Computing in the NISQ era and beyond". <em>Quantum</em>.</li>
+    </ul>
+  </div>
+
+  <div class="ref-grupo">
+    <h3>Cursos e sites</h3>
+    <ul>
+      <li>MIT OpenCourseWare, 8.370 Quantum Information Science (ocw.mit.edu)</li>
+      <li>Qiskit Textbook (qiskit.org/learn), material gratuito com código</li>
+      <li>arXiv, categoria quant-ph (arxiv.org)</li>
+      <li>IBM Quantum (quantum.ibm.com)</li>
+    </ul>
+  </div>
+
+  <p class="aviso">Confira links e vínculos institucionais antes de publicar, pois mudam com o tempo.</p>
+</section>
+
+<section id="brasil">
+  <h2>Pesquisa quântica no Brasil</h2>
+  <p class="lead">Grupos e instituições que pesquisam informação e computação quântica no país. Verifique os vínculos atuais nos sites oficiais.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>UFMG</h3>
+      <p>Informação quântica, com o pesquisador Marcelo Terra Cunha.</p>
+    </div>
+    <div class="card">
+      <h3>UFABC</h3>
+      <p>Informação e computação quântica, com o pesquisador Roberto Serra.</p>
+    </div>
+    <div class="card">
+      <h3>CBPF</h3>
+      <p>Centro Brasileiro de Pesquisas Físicas, com grupos de física teórica.</p>
+    </div>
+    <div class="card">
+      <h3>IFSC-USP e IFGW-Unicamp</h3>
+      <p>Institutos de física com grupos teóricos e experimentais.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>QubitBrasil © 2026. Conteúdo educativo sobre computação quântica.</p>
+  <p>Criado por Guilherme Morais do Nascimento.</p>
+  <p>Contato: Guilherme Morais do Nascimento, <a href="mailto:guilhermenascimento867@gmail.com" style="color: var(--green);">guilhermenascimento867@gmail.com</a></p>
+</footer>
+
+<script>
+  let amp0 = 1, amp1 = 0;
+  const estadoEl = document.getElementById('estado');
+  const probsEl = document.getElementById('probs');
+  const medirEl = document.getElementById('medir-res');
+
+  function fmt(x) {
+    return Math.abs(x) < 1e-9 ? '0' : x.toFixed(3);
+  }
+
+  function atualizar() {
+    let texto;
+    if (Math.abs(amp1) < 1e-9) texto = `${fmt(amp0)}|0⟩`;
+    else if (Math.abs(amp0) < 1e-9) texto = `${fmt(amp1)}|1⟩`;
+    else texto = `${fmt(amp0)}|0⟩ + ${fmt(amp1)}|1⟩`;
+    estadoEl.textContent = texto;
+    const p0 = (amp0 * amp0 * 100).toFixed(1);
+    const p1 = (amp1 * amp1 * 100).toFixed(1);
+    probsEl.textContent = `Probabilidade de 0: ${p0}%  |  de 1: ${p1}%`;
+  }
+
+  function aplicarH() {
+    const s = Math.SQRT1_2;
+    const a = s * (amp0 + amp1);
+    const b = s * (amp0 - amp1);
+    amp0 = a; amp1 = b;
+    medirEl.textContent = '';
+    atualizar();
+  }
+
+  function aplicarX() {
+    [amp0, amp1] = [amp1, amp0];
+    medirEl.textContent = '';
+    atualizar();
+  }
+
+  function aplicarZ() {
+    amp1 = -amp1;
+    medirEl.textContent = '';
+    atualizar();
+  }
+
+  function medir() {
+    const p0 = amp0 * amp0;
+    const r = Math.random();
+    if (r < p0) { amp0 = 1; amp1 = 0; }
+    else { amp0 = 0; amp1 = 1; }
+    medirEl.textContent = `Resultado da medição: ${amp0 === 1 ? '0' : '1'}. O estado colapsou.`;
+    atualizar();
+  }
+
+  function resetar() {
+    amp0 = 1; amp1 = 0;
+    medirEl.textContent = '';
+    atualizar();
+  }
+
+  atualizar();
+</script>
+
+</body>
+</html>
